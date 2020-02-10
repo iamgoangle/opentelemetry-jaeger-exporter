@@ -2,15 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
+	"go.opentelemetry.io/exporter/trace/jaeger"
 	"go.opentelemetry.io/otel/api/core"
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/key"
-	"go.opentelemetry.io/otel/exporter/trace/jaeger"
-
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/api/trace"
 )
 
 // initTracer creates a new trace provider instance and registers it as global trace provider.
@@ -39,6 +37,7 @@ func initTracer() func() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	global.SetTraceProvider(tp)
 	return func() {
 		exporter.Flush()
@@ -52,16 +51,16 @@ func main() {
 	ctx := context.Background()
 
 	tr := global.TraceProvider().Tracer("component-main")
-
 	ctx, span := tr.Start(ctx, "foo")
-	hello(ctx, "golf")
+	bar(ctx)
 	span.End()
 }
 
-func hello(ctx context.Context, name string) {
-	tr := global.TraceProvider().Tracer("component-hello")
-	_, span := tr.Start(ctx, "hello")
-	defer span.End()
+func sayHello() {
+	ctx := context.Background()
+	tracer := trace.GlobalTracer()
 
-	fmt.Println("Hello, ", name)
+	ctx, trace := tracer.Start(ctx, "say-hello")
+
+	trace.End()
 }
