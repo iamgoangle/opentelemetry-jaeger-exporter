@@ -21,6 +21,7 @@ docker-compose up --build
 #### Combine Span
 
 example/connect_the_span
+![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/example/connect_the_span/screenshot.png "screenshot")
 
 ```sh
 go run .
