@@ -275,6 +275,7 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
+go.opentelemetry.io v0.1.0 h1:EANZoRCOP+A3faIlw/iN6YEWoYb1vleZRKm1EvH8T48=
 go.opentelemetry.io/otel v0.2.1 h1:YwD8bY4WKVVDy98Q3qwNDejhs3kunSdl35qCInRjb8w=
 go.opentelemetry.io/otel v0.2.1/go.mod h1:DztlYhVA/vOw2JNr1nYhZNHXY40sm34xHavb5BDig3s=
 go.opentelemetry.io/otel/exporter/trace/jaeger v0.2.1 h1:FjyIMPZzCAqJZhS4oUfAucSdnf4HEHTQ92I/DZ0E2dI=
