@@ -2,111 +2,110 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"net/http"
 	"time"
 
-	"go.opentelemetry.io/otel/api/core"
+	"google.golang.org/grpc/codes"
+
 	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/api/key"
 
-	"go.opentelemetry.io/otel/exporter/trace/jaeger"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"github.com/iamgoangle/opentelemetry-jaeger-exporter/internal/otel"
 )
 
-const (
-	jaegerThriftEndpoint = "http://localhost:14268/api/traces"
-
-	serviceName = "opentelemetry-jaeger-exporter"
-)
-
-// initTracer creates a new trace provider instance and registers it as global trace provider.
-func initTracer() func() {
-	// Create Jaeger Exporter
-	exporter, err := jaeger.NewExporter(
-		jaeger.WithCollectorEndpoint(jaegerThriftEndpoint),
-		jaeger.WithProcess(jaeger.Process{
-			ServiceName: serviceName,
-			Tags: []core.KeyValue{
-				key.String("exporter", "jaeger"),
-				key.Float64("float", 312.23),
-			},
-		}),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// For demoing purposes, always sample. In a production application, you should
-	// configure this to a trace.ProbabilitySampler set at the desired
-	// probability.
-	tp, err := sdktrace.NewProvider(
-		sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
-		sdktrace.WithSyncer(exporter))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	global.SetTraceProvider(tp)
-	return func() {
-		exporter.Flush()
-	}
+type TestHandler struct {
+	Tracer otel.Tracer
 }
 
 func main() {
-	fn := initTracer()
-	defer fn()
+	initTrace := otel.InitTracer(&otel.Config{
+		Service:        "my-app",
+		ThriftEndpoint: "http://localhost:14268/api/traces",
+	})
+	defer initTrace()
 
 	ctx := context.Background()
 
 	tr := global.TraceProvider().Tracer("main")
 	ctx, span := tr.Start(ctx, "main-span")
+	defer span.End()
 
-	sayHello(ctx, "Golf")
-	go asyncJob(ctx)
-	sayGoodBye(ctx, "Golf")
+	tracer := otel.NewTracer()
 
-	span.End()
+	test := &TestHandler{
+		Tracer: tracer,
+	}
+	test.handler(ctx)
 }
 
-func sayHello(ctx context.Context, name string) {
-	trace := global.TraceProvider().Tracer("sayHello")
-	spanName := fmt.Sprintf("Hello, %s", name)
-
-	ctx, span := trace.Start(ctx, spanName)
+func (t *TestHandler) handler(ctx context.Context) {
+	spanName := "handler"
+	thisCtx, span := t.Tracer.TracerStart(ctx, spanName)
 	defer span.End()
 
 	time.Sleep(10 * time.Second)
 
-	sayProfileByName(ctx, name)
+	t.Tracer.SetIntAttribute(thisCtx, "http.code", http.StatusOK)
+	span.SetStatus(codes.OK)
+
+	t.service(thisCtx)
 }
 
-func sayProfileByName(ctx context.Context, name string) {
-	trace := global.TraceProvider().Tracer("sayProfileByName")
-	spanName := fmt.Sprintf("Profile, %s", name)
+func (t *TestHandler) service(ctx context.Context) {
+	spanName := "service"
+	thisCtx, span := t.Tracer.TracerStart(ctx, spanName)
+	defer span.End()
 
-	_, span := trace.Start(ctx, spanName)
+	time.Sleep(10 * time.Second)
+
+	t.repository(thisCtx)
+}
+
+func (t *TestHandler) repository(ctx context.Context) {
+	spanName := "repository"
+	_, span := t.Tracer.TracerStart(ctx, spanName)
 	defer span.End()
 
 	time.Sleep(10 * time.Second)
 }
 
-func asyncJob(ctx context.Context) {
-	trace := global.TraceProvider().Tracer("asyncJob")
-	spanName := fmt.Sprintf("Async Job")
-
-	_, span := trace.Start(ctx, spanName)
-	defer span.End()
-
-	time.Sleep(2 * time.Second)
-}
-
-func sayGoodBye(ctx context.Context, name string) {
-	trace := global.TraceProvider().Tracer("sayGoodBye")
-	spanName := fmt.Sprintf("Bye, %s", name)
-
-	_, span := trace.Start(ctx, spanName)
-	defer span.End()
-
-	time.Sleep(10 * time.Second)
-}
+// func sayHello(ctx context.Context, name string) {
+// 	trace := global.TraceProvider().Tracer("sayHello")
+// 	spanName := fmt.Sprintf("Hello, %s", name)
+//
+// 	ctx, span := trace.Start(ctx, spanName)
+// 	defer span.End()
+//
+// 	time.Sleep(10 * time.Second)
+//
+// 	sayProfileByName(ctx, name)
+// }
+//
+// func sayProfileByName(ctx context.Context, name string) {
+// 	trace := global.TraceProvider().Tracer("sayProfileByName")
+// 	spanName := fmt.Sprintf("Profile, %s", name)
+//
+// 	_, span := trace.Start(ctx, spanName)
+// 	defer span.End()
+//
+// 	time.Sleep(10 * time.Second)
+// }
+//
+// func asyncJob(ctx context.Context) {
+// 	trace := global.TraceProvider().Tracer("asyncJob")
+// 	spanName := fmt.Sprintf("Async Job")
+//
+// 	_, span := trace.Start(ctx, spanName)
+// 	defer span.End()
+//
+// 	time.Sleep(2 * time.Second)
+// }
+//
+// func sayGoodBye(ctx context.Context, name string) {
+// 	trace := global.TraceProvider().Tracer("sayGoodBye")
+// 	spanName := fmt.Sprintf("Bye, %s", name)
+//
+// 	_, span := trace.Start(ctx, spanName)
+// 	defer span.End()
+//
+// 	time.Sleep(10 * time.Second)
+// }
