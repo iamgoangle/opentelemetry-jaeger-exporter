@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"time"
 
 	"go.opentelemetry.io/otel/api/trace"
+	"google.golang.org/grpc/codes"
 
 	"go.opentelemetry.io/otel/api/core"
 	"go.opentelemetry.io/otel/api/global"
@@ -29,26 +29,21 @@ type Tracer interface {
 	SetStringAttribute(ctx context.Context, k, v string)
 
 	SetIntAttribute(ctx context.Context, k string, v int)
+
+	SetJaegerStatusOK(ctx context.Context)
+
+	SetJaegerStatusCanceled(ctx context.Context)
+
+	SetJaegerStatusInternal(ctx context.Context)
+
+	PrintSpanContext(ctx context.Context)
+
+	TraceID(ctx context.Context) string
+
+	SpanID(ctx context.Context) string
 }
 
-// EndConfig provides options to set properties of span at the time of ending
-// the span.
-type EndConfig struct {
-	EndTime time.Time
-}
-
-// EndOption applies changes to EndConfig that sets options when the span is ended.
-type EndOption func(*EndConfig)
-
-type Span interface {
-	End(options ...EndOption)
-
-	// SetName sets the name of the span.
-	SetName(name string)
-}
-
-type tracing struct {
-}
+type tracing struct{}
 
 // InitTracer creates a new trace provider instance and registers it as global trace provider.
 func InitTracer(c *Config) func() {
@@ -119,4 +114,28 @@ func (t *tracing) SetStringAttribute(ctx context.Context, k, v string) {
 func (t *tracing) SetIntAttribute(ctx context.Context, k string, v int) {
 	keyName := key.New(k)
 	trace.SpanFromContext(ctx).SetAttributes(keyName.Int(v))
+}
+
+func (t *tracing) SetJaegerStatusOK(ctx context.Context) {
+	trace.SpanFromContext(ctx).SetStatus(codes.OK)
+}
+
+func (t *tracing) SetJaegerStatusCanceled(ctx context.Context) {
+	trace.SpanFromContext(ctx).SetStatus(codes.Canceled)
+}
+
+func (t *tracing) SetJaegerStatusInternal(ctx context.Context) {
+	trace.SpanFromContext(ctx).SetStatus(codes.Internal)
+}
+
+func (t *tracing) PrintSpanContext(ctx context.Context) {
+	fmt.Printf("%+v", trace.SpanFromContext(ctx).SpanContext())
+}
+
+func (t *tracing) TraceID(ctx context.Context) string {
+	return trace.SpanFromContext(ctx).SpanContext().TraceIDString()
+}
+
+func (t *tracing) SpanID(ctx context.Context) string {
+	return trace.SpanFromContext(ctx).SpanContext().SpanIDString()
 }

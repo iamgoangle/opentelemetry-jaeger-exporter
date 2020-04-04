@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -47,6 +48,9 @@ func (t *TestHandler) handler(ctx context.Context) {
 	t.Tracer.SetIntAttribute(thisCtx, "http.code", http.StatusOK)
 	span.SetStatus(codes.OK)
 
+	fmt.Println(t.Tracer.TraceID(thisCtx))
+	fmt.Println(t.Tracer.SpanID(thisCtx))
+
 	t.service(thisCtx)
 }
 
@@ -67,45 +71,3 @@ func (t *TestHandler) repository(ctx context.Context) {
 
 	time.Sleep(10 * time.Second)
 }
-
-// func sayHello(ctx context.Context, name string) {
-// 	trace := global.TraceProvider().Tracer("sayHello")
-// 	spanName := fmt.Sprintf("Hello, %s", name)
-//
-// 	ctx, span := trace.Start(ctx, spanName)
-// 	defer span.End()
-//
-// 	time.Sleep(10 * time.Second)
-//
-// 	sayProfileByName(ctx, name)
-// }
-//
-// func sayProfileByName(ctx context.Context, name string) {
-// 	trace := global.TraceProvider().Tracer("sayProfileByName")
-// 	spanName := fmt.Sprintf("Profile, %s", name)
-//
-// 	_, span := trace.Start(ctx, spanName)
-// 	defer span.End()
-//
-// 	time.Sleep(10 * time.Second)
-// }
-//
-// func asyncJob(ctx context.Context) {
-// 	trace := global.TraceProvider().Tracer("asyncJob")
-// 	spanName := fmt.Sprintf("Async Job")
-//
-// 	_, span := trace.Start(ctx, spanName)
-// 	defer span.End()
-//
-// 	time.Sleep(2 * time.Second)
-// }
-//
-// func sayGoodBye(ctx context.Context, name string) {
-// 	trace := global.TraceProvider().Tracer("sayGoodBye")
-// 	spanName := fmt.Sprintf("Bye, %s", name)
-//
-// 	_, span := trace.Start(ctx, spanName)
-// 	defer span.End()
-//
-// 	time.Sleep(10 * time.Second)
-// }
