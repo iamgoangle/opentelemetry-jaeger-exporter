@@ -26,6 +26,8 @@ type Config struct {
 type Tracer interface {
 	TracerStart(ctx context.Context, name string) (context.Context, trace.Span)
 
+	StartSpanWithContext(ctx context.Context, name string, fn func(ctx context.Context) error) error
+
 	SetStringAttribute(ctx context.Context, k, v string)
 
 	SetIntAttribute(ctx context.Context, k string, v int)
@@ -104,6 +106,16 @@ func (t *tracing) TracerStart(ctx context.Context, name string) (context.Context
 	t.SetStringAttribute(ctx, "file", callerDetails)
 
 	return tr.Start(ctx, name)
+}
+
+func (t *tracing) StartSpanWithContext(ctx context.Context, name string, fn func(ctx context.Context) error) error {
+	tr := global.TraceProvider().Tracer(name)
+	err := tr.WithSpan(ctx, name, fn)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *tracing) SetStringAttribute(ctx context.Context, k, v string) {

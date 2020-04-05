@@ -120,6 +120,20 @@ func (mr *MockTracerMockRecorder) SpanID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpanID", reflect.TypeOf((*MockTracer)(nil).SpanID), arg0)
 }
 
+// StartSpanWithContext mocks base method
+func (m *MockTracer) StartSpanWithContext(arg0 context.Context, arg1 string, arg2 func(context.Context) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StartSpanWithContext", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StartSpanWithContext indicates an expected call of StartSpanWithContext
+func (mr *MockTracerMockRecorder) StartSpanWithContext(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartSpanWithContext", reflect.TypeOf((*MockTracer)(nil).StartSpanWithContext), arg0, arg1, arg2)
+}
+
 // TraceID mocks base method
 func (m *MockTracer) TraceID(arg0 context.Context) string {
 	m.ctrl.T.Helper()
