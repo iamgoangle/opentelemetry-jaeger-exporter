@@ -20,7 +20,7 @@ docker-compose up --build
 
 #### Basic Parent-Children span
 
-example/connect_the_span ![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/example/connect_the_span/screenshot.png)
+example/connect_the_span ![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/basic-tracer-jaeger.png)
 
 ```sh
 go run .
