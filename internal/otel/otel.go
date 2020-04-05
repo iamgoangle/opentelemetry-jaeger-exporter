@@ -17,6 +17,7 @@ import (
 )
 
 //go:generate mockgen -destination=./mock/otel.go -package=mock github.com/iamgoangle/opentelemetry-jaeger-exporter/internal/otel Tracer
+// https://pkg.go.dev/go.opentelemetry.io/otel@v0.4.2/internal/trace?tab=doc#MockSpan
 
 type Config struct {
 	Service        string
@@ -105,7 +106,8 @@ func (t *tracing) TracerStart(ctx context.Context, name string) (context.Context
 
 	t.SetStringAttribute(ctx, "file", callerDetails)
 
-	return tr.Start(ctx, name)
+	sp := fmt.Sprintf("%s-span", name)
+	return tr.Start(ctx, sp)
 }
 
 func (t *tracing) StartSpanWithContext(ctx context.Context, name string, fn func(ctx context.Context) error) error {

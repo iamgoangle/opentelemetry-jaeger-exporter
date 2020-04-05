@@ -37,6 +37,8 @@ var _ = Describe("ConnectTheSpan", func() {
 			It("should call handler", func() {
 				_, mockSpan := mockOtel.MockSpan(mockCtx)
 				mockTracer.EXPECT().TracerStart(mockCtx, "handler").Return(mockCtx, mockSpan).Times(1)
+				mockTracer.EXPECT().TracerStart(mockCtx, "service").Return(mockCtx, mockSpan).Times(1)
+				mockTracer.EXPECT().TracerStart(mockCtx, "repository").Return(mockCtx, mockSpan).Times(1)
 				mockTracer.EXPECT().SetIntAttribute(mockCtx, gomock.Any(), gomock.Any()).Times(1)
 				mockTracer.EXPECT().TraceID(mockCtx).Return(mockTraceID).Times(1)
 				mockTracer.EXPECT().SpanID(mockCtx).Return(mockSpanID).Times(1)

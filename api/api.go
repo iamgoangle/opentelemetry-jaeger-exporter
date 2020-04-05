@@ -3,11 +3,13 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/iamgoangle/opentelemetry-jaeger-exporter/internal/otel"
 	"google.golang.org/grpc/codes"
+
+	"github.com/iamgoangle/opentelemetry-jaeger-exporter/internal/otel"
 )
 
 type TestHandler struct {
@@ -27,23 +29,29 @@ func (t *TestHandler) Handler(ctx context.Context) {
 	fmt.Println(t.Tracer.TraceID(thisCtx))
 	fmt.Println(t.Tracer.SpanID(thisCtx))
 
-	// t.Service(thisCtx)
+	log.Println("finish handler")
+
+	t.Service(thisCtx)
 }
 
 func (t *TestHandler) Service(ctx context.Context) {
 	spanName := "service"
-	_, span := t.Tracer.TracerStart(ctx, spanName)
+	thisCtx, span := t.Tracer.TracerStart(ctx, spanName)
 	defer span.End()
 
 	time.Sleep(10 * time.Second)
 
-	// t.Repository(thisCtx)
+	log.Println("finish service")
+
+	t.Repository(thisCtx)
 }
 
 func (t *TestHandler) Repository(ctx context.Context) {
 	spanName := "repository"
 	_, span := t.Tracer.TracerStart(ctx, spanName)
 	defer span.End()
+
+	log.Println("finish repository")
 
 	time.Sleep(10 * time.Second)
 }
