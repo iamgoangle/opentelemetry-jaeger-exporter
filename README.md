@@ -18,12 +18,11 @@ docker-compose up --build
 
 # Example
 
-#### Basic Parent-Children span
+#### Basic Kafka Producer and Consumer application
+The example demonsrate how the producer and consumer microservices inject a traceId and SpanId to Jaeger exporter.
 
-example/connect_the_span ![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/basic-tracer-jaeger.png)
+example/connect_the_span ![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/screenshots/jaeger_kafka.png)
 
-```sh
-go run .
-```
+example/connect_the_span ![screenshot](https://raw.githubusercontent.com/iamgoangle/opentelemetry-jaeger-exporter/master/screenshots/kafka_log.png)
 
 open <http://localhost:16686/> to see all trace.
